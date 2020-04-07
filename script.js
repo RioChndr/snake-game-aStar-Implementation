@@ -39,60 +39,66 @@ function draw() {
       obstacle_c.forEach(function(o){
           o.customShow(160, 161, 159);
       })
-      if(run_aStar && final == false) aStar();
       if(final) print_final();
 }
 
 function aStar(){
-    var lowest_fScore = 0;
-  for(let i = 0 ; i < openSet.length; i++){
-    if(openSet[i].fScore <= openSet[lowest_fScore].fScore){
-      lowest_fScore = i;
-    }
-  };
-//   console.log("jumlah openSet : "+openSet.length);
-  let current = openSet[lowest_fScore];
-//   console.log('adsfjslkdf');
-//   console.log(current);
-  
-//   openSet.splice(lowest_fScore, 1); //remove current from openSet
-  hapusOpenSet(lowest_fScore);
-  nodes[current.x][current.y].isOpen = false;
-//   console.log(closedSet.length);
-  if(current.x == target.x && current.y == target.y){
-      print_final();
-      final = true;
-    // console.log('done');
-    return;
-  }
- 
-  let neighbours = findNeighbours(current);
-//   console.log("neighbours length : "+neighbours.length);
-  neighbours.forEach(function(neighbour){
-      if(neighbour == null){
-          return;
-      }
-      if(isInObstacle(neighbour) == true){
-          return;
-      };
-      if(neighbour.isOpen == false){
-          return;
-      }
-
-      let tentativ_gScore  = current.gScore + dist(current.x, current.y, neighbour.x, neighbour.y);
-    //   console.log("tentative :"+tentativ_gScore);
-      if(neighbour.gScore <= tentativ_gScore){
-        //   console.log('you got it');
-          neighbour.from = current;
-          cameFrom.push(neighbour);
-          neighbour.gScore = tentativ_gScore;
-          neighbour.fScore = neighbour.gScore + heuristic(neighbour);
-        //   console.log(isInCloseSet(neighbour));
-          if(nodes[neighbour.x][neighbour.y].isOpen != false){
-              tambahOpenSet(neighbour);
+    while(openSet.length > 0){
+        for(let i = 0; i < 20; i++){
+            for(let j = 0; j < 20; j++){
+              nodes[i][j].show();
+            }
           }
-      }
-  })
+            var lowest_fScore = 0;
+        for(let i = 0 ; i < openSet.length; i++){
+            if(openSet[i].fScore <= openSet[lowest_fScore].fScore){
+            lowest_fScore = i;
+            }
+        };
+        //   console.log("jumlah openSet : "+openSet.length);
+        let current = openSet[lowest_fScore];
+        //   console.log('adsfjslkdf');
+        //   console.log(current);
+        
+        //   openSet.splice(lowest_fScore, 1); //remove current from openSet
+        hapusOpenSet(lowest_fScore);
+        nodes[current.x][current.y].isOpen = false;
+        //   console.log(closedSet.length);
+        if(current.x == target.x && current.y == target.y){
+            print_final();
+            final = true;
+            // console.log('done');
+            return;
+        }
+        
+        let neighbours = findNeighbours(current);
+        //   console.log("neighbours length : "+neighbours.length);
+        neighbours.forEach(function(neighbour){
+            if(neighbour == null){
+                return;
+            }
+            if(isInObstacle(neighbour) == true){
+                return;
+            };
+            if(neighbour.isOpen == false){
+                return;
+            }
+
+            let tentativ_gScore  = current.gScore + dist(current.x, current.y, neighbour.x, neighbour.y);
+            //   console.log("tentative :"+tentativ_gScore);
+            if(neighbour.gScore <= tentativ_gScore){
+                //   console.log('you got it');
+                neighbour.from = current;
+                cameFrom.push(neighbour);
+                neighbour.gScore = tentativ_gScore;
+                neighbour.fScore = neighbour.gScore + heuristic(neighbour);
+                //   console.log(isInCloseSet(neighbour));
+                if(nodes[neighbour.x][neighbour.y].isOpen != false){
+                    tambahOpenSet(neighbour);
+                }
+            }
+        })
+    }
 }
 
 function print_final(){
@@ -249,6 +255,6 @@ function tambah_obstacle(x,y){
 }
 function keyPressed(){
     if(keyCode == RETURN){
-        run_aStar = true;
+        aStar();
     }
 }
