@@ -9,6 +9,7 @@ var obstacle = {};
 var openSet = [];
 var closeSet = [];
 var cameFrom = [];
+var pathToTarget = [];
 
 function node(i,j){
     this.x = i;
@@ -17,6 +18,7 @@ function node(i,j){
     this.hScore = 1;
     this.fScore = 1;
     this.skala = 20;
+    this.cameFrom = null;
     this.show = function(){
         fill(217, 217, 217);
         square(this.x * this.skala, this.y * this.skala, this.skala );
@@ -37,7 +39,7 @@ function setup(){
             nodes[i][j] = new node(i,j);
         }
     }
-    createObstacle();
+    // createObstacle();
     startNode = new node(0,0);
     targetNode = new node(skala-1, skala-1);
 }
@@ -54,11 +56,19 @@ function draw(){
     displayNode(obstacle_c, color(64, 64, 64));
     for (let i = 0; i < cameFrom.length; i++) {
         const cf  = cameFrom[i];
-        // cf.customShow(color(247, 255, 25)); //yellow
-        cf.cameFrom.customShow(color(255, 0, 0)); //red
-        
+        let col_red_p = i/cameFrom.length * 255;
+        cf.customShow(color(247, 255, 25)); //yellow
+        cf.cameFrom.customShow(color(col_red_p, 0, 0)); //red
+        fill(255,255,255);
+        // text(i, cf.cameFrom.x * skala + 5, cf.cameFrom.y * skala+10);
     }
     // displayNode(closeSet, color(100,100,0));
+    for (let i = 0; i < pathToTarget.length; i++) {
+        const pt = pathToTarget[i];
+        console.log(`x : ${pt.x}, y : ${pt.y}`);
+        pt.customShow(color(col_red_p, 0, 0)); //red
+        
+    }
 }
 
 function A_star(){
@@ -70,15 +80,17 @@ function A_star(){
     
     function isInCloseSet(node){
         for (let i = 0; i < closeSet.length; i++) {
-            if(closeSet.x == node.x && closeSet.y == node.y){
+            if(closeSet[i].x == node.x && closeSet[i].y == node.y){
                 return true;
             }
         }   
         return false;
     }
-    function isInOpenSet(node){
-        for (let i = 0; i < openSet.length; i++) {
-            if(openSet.x == node.x && openSet.y == node.y){
+    function isInOpenSet(nodeSearch){
+        // console.log(openSet.heap);
+        for (let i = 0; i < openSet.heap.length; i++) {
+            if(openSet.heap[i] == null){continue;}
+            if(openSet.heap[i].x == nodeSearch.x && openSet.heap[i].y == nodeSearch.y){
                 return true;
             }
         }   
@@ -108,15 +120,14 @@ function A_star(){
         current = openSet.getSmallestGScore();
         if(current.x == targetNode.x && current.y == targetNode.y){
             console.log('done');
+            // findPath(current);
             return;
         }
         closeSet.push(current);
         openSet.remove(1); // hapus data terkecil
 
         let neighbours = findNeighbours(current);
-        if(neighbours.length < 1){
-            return;
-        }
+        let sortest_neighbor = neighbours[0];
         neighbours.forEach(function(neighbour){
             console.log(`neighbour, x : ${neighbour.x}, y : ${neighbour.y}`);
             if(isInObstacle(neighbour)){
@@ -124,10 +135,13 @@ function A_star(){
                 return;
             }
             let tentative_gScore = current.gScore + dist(current.x, current.y, neighbour.x, neighbour.y);
-            if(tentative_gScore < neighbour.gScore || isInOpenSet(neighbour) == false){
-                neighbour.cameFrom = current;
+            console.log(`tGscore : ${tentative_gScore}, nGscore : ${sortest_neighbor.gScore}`);
+            
+            if(isInOpenSet(neighbour) == false){
                 neighbour.gScore = tentative_gScore;
                 neighbour.fScore = neighbour.gScore + heuristic(neighbour);
+                neighbour.cameFrom = current;
+                sortest_neighbor = neighbour;
                 cameFrom.push(neighbour);
                 if(isInCloseSet(neighbour) == false){
                     openSet.insert(neighbour);
@@ -226,13 +240,21 @@ class heapDataNode{
     }
 }
 
+function findPath(current){
+    while(current.cameFrom != null){
+        pathToTarget.push(current);
+        current = current.cameFrom;
+        console.log(`cf x : ${current.x}, y : ${current.y}`);
+    }
+    console.log(pathToTarget.length);
+}
+
 
 // interaction
 function mouseClicked(){
     pos_x = ceil(mouseX / 20)-1;
     pos_y = ceil(mouseY / 20)-1;
     tambah_obstacle(pos_x, pos_y);
-
 }
 // var prev_x = 0;
 // var prev_y = 0;
@@ -247,13 +269,16 @@ function mouseClicked(){
 //     return false;
 // }
 function tambah_obstacle(x,y){
+    let data = [];
     for (let i = 0; i < obstacle_c.length; i++) {
         const obst = obstacle_c[i];
         if(obst.x == x && obst.y == y){
             obstacle_c.splice(i, 1);
             return;
         }
+        data.push([obst.x, obst.y]);
     }
+    // console.log(data);
     obstacle_c.push(new node(x,y));
     // obstacle[x+"|"+y] = true;
 }
