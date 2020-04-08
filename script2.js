@@ -57,7 +57,7 @@ function draw(){
     for (let i = 0; i < cameFrom.length; i++) {
         const cf  = cameFrom[i];
         let col_red_p = i/cameFrom.length * 255;
-        cf.customShow(color(247, 255, 25)); //yellow
+        // cf.customShow(color(247, 255, 25)); //yellow
         cf.cameFrom.customShow(color(col_red_p, 0, 0)); //red
         fill(255,255,255);
         // text(i, cf.cameFrom.x * skala + 5, cf.cameFrom.y * skala+10);
@@ -117,10 +117,11 @@ function A_star(){
 
     while(openSet.heap.length > 1){
         
-        current = openSet.getSmallestGScore();
+        let smallestOpenSet = openSet.getSmallestGScore();
+        current = nodes[smallestOpenSet.x][smallestOpenSet.y];
         if(current.x == targetNode.x && current.y == targetNode.y){
             console.log('done');
-            // findPath(current);
+            findPath(current);
             return;
         }
         closeSet.push(current);
@@ -128,20 +129,21 @@ function A_star(){
 
         let neighbours = findNeighbours(current);
         let sortest_neighbor = neighbours[0];
-        neighbours.forEach(function(neighbour){
+        neighbours.forEach(function(n_neighbour){
+            neighbour = nodes[n_neighbour.x][n_neighbour.y];
             console.log(`neighbour, x : ${neighbour.x}, y : ${neighbour.y}`);
             if(isInObstacle(neighbour)){
                 //lanjukan jika ada obstacle
                 return;
             }
             let tentative_gScore = current.gScore + dist(current.x, current.y, neighbour.x, neighbour.y);
-            console.log(`tGscore : ${tentative_gScore}, nGscore : ${sortest_neighbor.gScore}`);
+            console.log(`tGscore : ${tentative_gScore}, nGscore : ${neighbour.gScore}`);
             
-            if(isInOpenSet(neighbour) == false){
+            if(tentative_gScore < neighbour.gScore || isInOpenSet(neighbour) == false){
                 neighbour.gScore = tentative_gScore;
                 neighbour.fScore = neighbour.gScore + heuristic(neighbour);
                 neighbour.cameFrom = current;
-                sortest_neighbor = neighbour;
+                nodes[neighbour.x][neighbour.y] = neighbour;
                 cameFrom.push(neighbour);
                 if(isInCloseSet(neighbour) == false){
                     openSet.insert(neighbour);
@@ -241,9 +243,17 @@ class heapDataNode{
 }
 
 function findPath(current){
-    while(current.cameFrom != null){
-        pathToTarget.push(current);
-        current = current.cameFrom;
+    let maxLimit = 1000;
+    let i = 0;
+    while(current != null){
+        i += 1;
+        if(i >= maxLimit){
+            console.log('cannot find !');
+            break;
+
+        }
+        pathToTarget.push(nodes[current.x][current.y]);
+        current = nodes[current.x][current.y].cameFrom;
         console.log(`cf x : ${current.x}, y : ${current.y}`);
     }
     console.log(pathToTarget.length);
