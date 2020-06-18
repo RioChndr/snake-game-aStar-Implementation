@@ -6,10 +6,8 @@ var startNode;
 var targetNode;
 var obstacle_c =[];
 var obstacle = {};
-var openSet = [];
-var closeSet = [];
-var cameFrom = [];
 var pathToTarget = [];
+var findingFunction;
 var truePath = [];
 
 
@@ -24,6 +22,9 @@ function setup(){
     createObstacle();
     startNode = new node(0,0);
     targetNode = new node(skala-1, skala-1);
+
+    findingFunction = new AStarAlgorithm();
+    findingFunction.setSizeGrid(skala, skala);
 }
 
 function draw(){

@@ -34,7 +34,7 @@ function tambah_obstacle(x,y){
 }
 function keyPressed(){
     if(keyCode == RETURN){
-        A_star(startNode, targetNode);
+        truePath = findingFunction.startSearch(startNode, targetNode);
     }
 }
 function createObstacle(){
