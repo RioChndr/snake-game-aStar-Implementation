@@ -15,6 +15,7 @@ var makanan_y = 0;
 var gameOver = false;
 var score = 0;
 var UlarPintar;
+var isStop = false;
 
 function setup() {
   createCanvas(widthCanvas, heightCanvas);
@@ -49,6 +50,16 @@ function keyPressed() {
   } else if (keyCode == LEFT_ARROW && !goingRight) {
     dx = -1;
     dy = 0;
+  } else if (keyCode == 32) {
+    // When press space
+    print(isStop)
+    if (!isStop) {
+      noLoop();
+      isStop = true;
+    } else {
+      loop();
+      isStop = false;
+    }
   }
 
   if (gameOver == true || keyCode == ENTER) {
