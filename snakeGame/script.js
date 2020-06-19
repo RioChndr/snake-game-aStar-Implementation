@@ -31,8 +31,7 @@ function draw() {
   stroke(255);
   cetak_makanan();
   cetak_ular();
-  if (!gameOver) jalankan_ular();
-  if (gameOver) showGameOver();
+  jalankan_ular();
   showScore();
 
 }
@@ -152,11 +151,13 @@ function jalankan_ular() {
   });
   let process = UlarPintar.findPath();
   if (process == false) {
-    gameOver == true;
+    doGameOver();
   }
   let nextStep = UlarPintar.nextStep();
   dx = nextStep.x;
   dy = nextStep.y;
+
+  // END AI step..
 
   head.x += dx;
   head.y += dy;
@@ -171,7 +172,7 @@ function jalankan_ular() {
     head.y = heightCanvas / size_kotak
   }
   if (is_nabrak_badan(head)) {
-    gameOver = true;
+    doGameOver();
   }
   tambah_badan(head.x, head.y);
   badan_ular.pop();
@@ -237,6 +238,12 @@ function showGameOver() {
 function showScore() {
   textSize(20);
   text(`Score : ${score}`, 10, 30);
+}
+
+function doGameOver() {
+  gameOver = true;
+  noLoop();
+  showGameOver();
 }
 
 function reset() {
