@@ -131,7 +131,6 @@ function cetak_ular() {
 
 function jalankan_ular() {
   var head = badan_ular[0];
-  // noLoop();
 
   //RUN AI SNAKE !!!!
   UlarPintar.setBodySnake(badan_ular);
